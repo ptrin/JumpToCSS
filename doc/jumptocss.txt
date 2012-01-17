@@ -1,0 +1,25 @@
+*jumptocss.txt*  Quickly jump to an element's CSS if it's open in another buffer
+                Author: Perry Trinier (@gmail.com)
+
+intro paragraph about the plugin and its use
+
+                                                    *jumptocss-maps*
+Key bindings~
+
+A secondary set of key maps is defined for normal mode.
+
+    <Leader>jc .............. :call JumpToCSS()
+
+
+-----------------------------------------------------------------------
+Install~
+
+Edit the vba file and type: >
+
+    :so %
+
+See :help vimball for details. If you have difficulties or use vim 7.0, 
+please make sure, you have the current version of vimball (vimscript 
+#1502) installed or update your runtime.
+
+vim:tw=78:fo=tcq2:isk=!-~,^*,^|,^":ts=8:ft=help:norl:
