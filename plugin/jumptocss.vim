@@ -1,12 +1,35 @@
+nnoremap ,jc :call JumpToCSS()<CR>
+
+if exists("g:loaded_jumptocss") || &cp
+    finish
+endif
+
+let g:loaded_jumptocss = 1
+
+" From http://vim.wikia.com/wiki/Automatically_fitting_a_quickfix_window_height
+au FileType qf call AdjustWindowHeight(2, 10)
+function! AdjustWindowHeight(minheight, maxheight)
+  exe max([min([line("$"), a:maxheight]), a:minheight]) . "wincmd _"
+endfunction
+
+" It's recommended for users to add 
+" let g:jumptocss_autoclose = 1
+" to their .vimrc
+if exists("g:jumptocss_autoclose")
+    au FileType qf nnoremap <CR> <CR>:cclose<CR>
+endif
+
 function! JumpToCSS()
 python << EOF
 import vim, re
+
 parts = {
     'tag':None,
     'id':None,
     'classes':[]
     # 'type':None,
 }
+
 regexen = {
     'tag': {
         'regex':'<([a-zA-Z0-9-_]+)(?:[^>])',
@@ -22,6 +45,26 @@ regexen = {
     }
 }
 
+def get_start_tag():
+    # go to beginning of start tag
+    vim.command('normal! F<')
+
+    # if there is something in the z register, copy it
+    try:
+        z_reg = vim.eval('@z')
+    except vim.error:
+        z_reg = None
+
+    # save the start tag to the z register and eval
+    vim.command('normal! "zyf>')
+    currenttag = vim.eval('@z')
+
+    # restore original z register if any
+    if z_reg is not None:
+        vim.command('let @z="'+escape(z_reg)+'"') # what command can I use to assign @z back to z_reg ?
+
+    return currenttag
+
 def assemble_css_regex(parts):
     import re
     regex = '\s*'
@@ -34,17 +77,20 @@ def assemble_css_regex(parts):
     if len(parts["classes"]):
         regex += '[\.]?(?P<classes>'+'|'.join(parts["classes"])+')?'
         
-    regex += '\s\{?'
+    regex += '\s*\{?$'
 
     return re.compile(regex)
 
 def escape(s):
     return s.replace('\\', '\\\\').replace('"', '\\"').replace('\n', '\\n')
 
-# find matching strings from HTML of current line using regexen for each type (tag, id and classes)
+# get start tag
+start_tag = get_start_tag()
+
+# find matching strings in start_tag using regexen for each type (tag, id and classes)
 for r in regexen.items():
     r[1]["compiled_re"] = re.compile(r[1]["regex"])
-    parts[r[0]] = r[1]["compiled_re"].findall(vim.current.line)
+    parts[r[0]] = r[1]["compiled_re"].findall(start_tag)
     if r[0] == 'classes':
         try:
             parts["classes"] = parts["classes"][0].split(' ')
@@ -67,6 +113,8 @@ for i in vim.buffers:
 
 # based on the "parts" available in the current line of the HTML buffer, create the regex to use to search CSS buffers
 css_regex = assemble_css_regex(parts)
+
+# vim.command('let @* = "'+escape(css_regex.pattern)+'"')
 
 matching_lines = []
 # for all CSS buffers
