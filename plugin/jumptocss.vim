@@ -1,6 +1,6 @@
-if exists("g:loaded_jumptocss") || &cp
-    finish
-endif
+" if exists("g:loaded_jumptocss") || &cp
+"     finish
+" endif
 
 let g:loaded_jumptocss = 1
 command! -nargs=0 JumpToCSS call JumpToCSS()
@@ -170,6 +170,7 @@ while True:
             error_string = error_list[0]
             thecommand = 'cexpr "%s"' % error_string
             vim.command(thecommand)
+            break
         else:
             # join quickfix formatted strings with newlines
             error_string = '\\n'.join(error_list)
@@ -180,7 +181,9 @@ while True:
             # Create quickfix list and open it
             vim.command(thecommand)
             vim.command('copen')
+            break
     else:
         vim.command('echo "JumpToCSS: No matches found"')
+        break
 EOF
 endfunction
