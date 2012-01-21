@@ -1,6 +1,6 @@
-" if exists("g:loaded_jumptocss") || &cp
-"     finish
-" endif
+if exists("g:loaded_jumptocss") || &cp
+    finish
+endif
 
 let g:loaded_jumptocss = 1
 command! -nargs=0 JumpToCSS call JumpToCSS()
