@@ -1,6 +1,6 @@
-if exists("g:loaded_jumptocss") || &cp
-    finish
-endif
+"if exists("g:loaded_jumptocss") || &cp
+"    finish
+"endif
 
 let g:loaded_jumptocss = 1
 command! -nargs=0 JumpToCSS call JumpToCSS()
@@ -76,11 +76,11 @@ def assemble_css_regex(parts):
             regex += '(?P<tag>'+parts["tag"][0]+')?'
     if len(parts["id"]):
         if parts["id"][0]:
-            regex += '(?P<id>\#'+parts["id"][0]+')?'
+            regex += '(?P<id>\#'+parts["id"][0]+')'
     if len(parts["classes"]):
-        regex += '[\.]?(?P<classes>'+'|'.join(parts["classes"])+')?'
+        regex += '[\.]?(?P<classes>'+'|'.join(parts["classes"])+')'
         
-    regex += '\s*\{?$'
+    regex += '(?=[^}]*{)'
 
     return re.compile(regex)
 
@@ -154,11 +154,10 @@ while True:
 
                     # only include lines with matchiness > 0
                     if matchiness > 0:
-                        matching_lines.append({'matchiness':matchiness,'err_string':err})
+                        matching_lines.append({'matchiness':matchiness,'err_string':err,'matching_line_length':len(line)})
 
-    # sort based on matchiness descending
-    matching_lines = sorted(matching_lines, key=lambda k: k['matchiness']) 
-    matching_lines.reverse()
+    # sort based on line length
+    matching_lines = sorted(matching_lines, key=lambda k: k['matching_line_length']) 
 
     # "error" refers to quickfix item
     error_list = []
