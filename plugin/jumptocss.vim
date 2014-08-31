@@ -21,6 +21,9 @@ endif
 function! JumpToCSS()
 python << EOF
 import vim, re, sys
+import pprint
+
+pp = pprint.PrettyPrinter(indent=4)
 
 # dictionary to put the parts of the start tag in
 parts = {
@@ -114,7 +117,7 @@ while True:
             if i.name is None:
                 pass
             else:
-                if i.name[-4:] == ".css":
+                if i.name.endswith( (".css",".less",".scss",".sass") ):
                     css_buffers.append(i)
 
         except vim.error:
@@ -143,7 +146,7 @@ while True:
                     matchiness = 0
                     if 'id' in matchesdict and not matchesdict['id'] == None:
                         matchiness += 100
-                    if 'classes' in matchesdict and not matchesdict['classes'] == None:
+                    if 'classes' in matchesdict and not matchesdict['classes'] == None and not len(matchesdict['classes']) == 0:
                         matchiness += 10
                     if  'tag' in matchesdict and not matchesdict['tag'] == None:
                         matchiness += 1
